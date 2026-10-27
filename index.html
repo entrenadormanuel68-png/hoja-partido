@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#1E3A5F"><title>Hoja de partido · Campo</title>
+<style>
+:root{--navy:#1E3A5F;--mut:#64748B;--line:#E2E8F0;--bg:#F1F5F9;--ok:#16A34A;--bad:#DC2626;--or:#F97316}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:#0F172A;-webkit-user-select:none;user-select:none}
+header{background:var(--navy);color:#fff;padding:10px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:5}
+header h1{font-size:16px;margin:0;flex:1;line-height:1.2}header small{display:block;font-weight:400;opacity:.8;font-size:11px}
+.hb{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700}
+main{max-width:520px;margin:0 auto;padding:10px 10px 40px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{flex:1;padding:11px 0;border:0;border-radius:10px;background:#fff;color:var(--navy);font-weight:800;font-size:15px;border:2px solid var(--line)}
+.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.card{background:#fff;border-radius:12px;padding:10px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+select,input,textarea{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff;-webkit-user-select:text;user-select:text}
+textarea{width:100%;min-height:150px}
+.pitch{position:relative;width:100%;aspect-ratio:3/4;max-height:70vh;margin:0 auto;border-radius:10px;background:repeating-linear-gradient(0deg,#3a9d4f 0 12.5%,#359447 12.5% 25%);border:3px solid #fff;overflow:hidden}
+.pitch:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px solid rgba(255,255,255,.7)}
+.pitch:after{content:"";position:absolute;left:50%;top:50%;width:22%;aspect-ratio:1;border:2px solid rgba(255,255,255,.7);border-radius:50%;transform:translate(-50%,-50%)}
+.box{position:absolute;left:25%;right:25%;height:14%;border:2px solid rgba(255,255,255,.7)}
+.box.t{top:0;border-top:0}.box.b{bottom:0;border-bottom:0}
+.tok{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;width:23%;border:0;background:none;padding:0}
+.dot{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.25);border:2px dashed #fff;color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center}
+.tok.f .dot{background:var(--navy);border:2px solid #fff;font-size:15px}
+.tok.por .dot{background:#F59E0B}
+.nm{margin-top:2px;color:#fff;font-size:12px;font-weight:700;text-shadow:0 1px 3px #000;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bench{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:600}
+.chip b{color:var(--mut);font-weight:700;margin-left:4px}.chip.z{background:#FEE2E2;border-color:#FCA5A5}
+.sc{display:flex;gap:10px;align-items:center;justify-content:space-around}
+.sc div{text-align:center}.sc .n{font-size:38px;font-weight:900;line-height:1}
+.sc button{width:52px;height:44px;border:0;border-radius:10px;font-size:24px;font-weight:800;background:var(--bg);color:var(--navy)}
+.sc .plus{background:var(--navy);color:#fff}
+.btn{border:0;border-radius:10px;padding:11px 14px;font-weight:800;font-size:14px;background:var(--navy);color:#fff}
+.btn.g{background:var(--ok)}.btn.r{background:var(--bad)}.btn.l{background:var(--bg);color:var(--navy)}
+h3{margin:0 0 8px;font-size:14px;color:var(--navy)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--line)}
+th{background:var(--navy);color:#fff}td:first-child,th:first-child{text-align:left}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:none;align-items:flex-end;justify-content:center}
+.modal.on{display:flex}.sheet{background:#fff;width:100%;max-width:520px;max-height:80vh;overflow:auto;border-radius:16px 16px 0 0;padding:12px}
+.opt{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:var(--bg);border-radius:10px;padding:13px 12px;margin-bottom:6px;font-size:16px;font-weight:700;text-align:left}
+.opt small{font-weight:600;color:var(--mut)}.opt.z{background:#FEE2E2}.opt.in{opacity:.9;background:#E0F2FE}
+.hide{display:none}.warn{color:var(--bad);font-weight:700;font-size:12px}
+@media print{header,.tabs,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}#vq{display:none!important}#vr{display:block!important}}
+</style></head><body>
+<header><h1 id="ttl">Hoja de partido<small id="sub"></small></h1><button class="hb" id="bPl">⚙ Plantilla</button><button class="hb" id="bNew">🔄 Nuevo</button></header>
+<main>
+ <div id="setup" class="card hide">
+  <h3>Plantilla y partido</h3>
+  <div class="row" style="margin-bottom:10px;background:var(--bg);border-radius:10px;padding:8px"><select id="plSel" style="flex:1;min-width:140px"></select><button class="btn l" id="plLoad">Cargar</button><button class="btn r" id="plDel">🗑</button></div>
+  <div class="row" style="margin-bottom:8px"><input id="eq" placeholder="Equipo" style="flex:1;min-width:120px" value="Alevín C"><input id="riv" placeholder="Rival" style="flex:1;min-width:120px"></div>
+  <div class="row" style="margin-bottom:8px"><label>Formato</label><select id="fmt"><option value="F7">Fútbol 7</option><option value="F8">Fútbol 8</option><option value="F11">Fútbol 11</option></select></div>
+  <div style="font-size:12px;color:var(--mut);margin-bottom:4px">Nombres de los jugadores, uno por línea:</div>
+  <textarea id="names" placeholder="Pedro&#10;Marc&#10;Joan&#10;..."></textarea>
+  <div class="row" style="margin-top:8px"><button class="btn g" id="bOk">✔ Empezar partido</button><button class="btn l" id="plSave">💾 Guardar plantilla</button></div><div id="plMsg" style="font-size:12px;color:var(--ok);margin-top:6px"></div><div style="font-size:11px;color:var(--mut);margin-top:6px">La plantilla se guarda con el nombre del campo «Equipo» (por ejemplo Alevín C) y queda en este móvil.</div>
+ </div>
+ <div class="tabs noprint" id="tabs"></div>
+ <div id="vq">
+  <div class="card"><div class="row" style="margin-bottom:8px"><label>Sistema</label><select id="form" style="flex:1"></select><button class="btn l" id="bRep">⤵ Repetir cuarto anterior</button></div>
+   <div class="pitch" id="pitch"><div class="box t"></div><div class="box b"></div></div></div>
+  <div class="card"><h3>Banquillo <span style="font-weight:400;color:var(--mut)">(cuartos jugados en total)</span></h3><div class="bench" id="bench"></div></div>
+  <div class="card"><h3>Marcador del cuarto</h3><div class="sc"><div><div style="font-size:12px;color:var(--mut);font-weight:700" id="lblN">NOSOTROS</div><div class="row" style="justify-content:center"><button id="nm">−</button><span class="n" id="vn">0</span><button class="plus" id="np">+</button></div></div>
+   <div><div style="font-size:12px;color:var(--mut);font-weight:700" id="lblR">RIVAL</div><div class="row" style="justify-content:center"><button id="rm">−</button><span class="n" id="vr2">0</span><button class="plus" id="rp">+</button></div></div></div></div>
+ </div>
+ <div id="vr" class="hide">
+  <div class="card"><h3>Marcador</h3><div id="marc" style="font-size:15px;font-weight:700"></div></div>
+  <div class="card"><h3>Alineaciones por cuarto</h3><div style="overflow-x:auto"><table id="tab"></table></div><div class="warn" id="aviso" style="margin-top:6px"></div></div>
+  <div class="row noprint"><button class="btn g" id="bCopy">📱 Copiar para WhatsApp</button><button class="btn l" id="bPrint">🖨 Imprimir / PDF</button></div>
+  <div id="msg" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
+ </div>
+</main>
+<div class="modal" id="md"><div class="sheet" id="sheet"></div></div>
+<script>
+var FORMACIONES={
+  F7:{
+    "1-2-3-1":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"DEF-I",x:28,y:68},{id:"DFD",l:"DEF-D",x:72,y:68},{id:"MCI",l:"MED-I",x:15,y:45},{id:"MCC",l:"MED-C",x:50,y:45},{id:"MCD",l:"MED-D",x:85,y:45},{id:"DEL",l:"DEL",x:50,y:18}],
+    "1-3-2-1":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"LAT-I",x:18,y:68},{id:"DFC",l:"CENT",x:50,y:68},{id:"DFD",l:"LAT-D",x:82,y:68},{id:"MCI",l:"MED-I",x:28,y:45},{id:"MCD",l:"MED-D",x:72,y:45},{id:"DEL",l:"DEL",x:50,y:18}],
+    "1-2-2-2":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"DEF-I",x:28,y:70},{id:"DFD",l:"DEF-D",x:72,y:70},{id:"MCI",l:"MED-I",x:28,y:50},{id:"MCD",l:"MED-D",x:72,y:50},{id:"DELI",l:"DEL-I",x:28,y:22},{id:"DELD",l:"DEL-D",x:72,y:22}],
+    "1-1-3-2":[{id:"POR",l:"POR",x:50,y:87},{id:"DFC",l:"CENT",x:50,y:70},{id:"MCI",l:"MED-I",x:15,y:48},{id:"MCC",l:"MED-C",x:50,y:48},{id:"MCD",l:"MED-D",x:85,y:48},{id:"DELI",l:"DEL-I",x:30,y:20},{id:"DELD",l:"DEL-D",x:70,y:20}],
+    "1-3-1-2":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"LAT-I",x:18,y:68},{id:"DFC",l:"CENT",x:50,y:68},{id:"DFD",l:"LAT-D",x:82,y:68},{id:"MCC",l:"MED-C",x:50,y:47},{id:"DELI",l:"DEL-I",x:28,y:20},{id:"DELD",l:"DEL-D",x:72,y:20}]
+  },
+  F8:{
+    "1-3-3-1":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"LAT-I",x:15,y:70},{id:"DFC",l:"CENT",x:50,y:70},{id:"DFD",l:"LAT-D",x:85,y:70},{id:"MCI",l:"MED-I",x:15,y:48},{id:"MCC",l:"PIV",x:50,y:48},{id:"MCD",l:"MED-D",x:85,y:48},{id:"DEL",l:"DEL",x:50,y:18}],
+    "1-4-2-1":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"LAT-I",x:10,y:70},{id:"DCI",l:"C-IZQ",x:35,y:70},{id:"DCD",l:"C-DER",x:65,y:70},{id:"DFD",l:"LAT-D",x:90,y:70},{id:"MCI",l:"MED-I",x:28,y:45},{id:"MCD",l:"MED-D",x:72,y:45},{id:"DEL",l:"DEL",x:50,y:18}],
+    "1-3-2-2":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"LAT-I",x:15,y:70},{id:"DFC",l:"CENT",x:50,y:70},{id:"DFD",l:"LAT-D",x:85,y:70},{id:"MCI",l:"MED-I",x:28,y:48},{id:"MCD",l:"MED-D",x:72,y:48},{id:"DELI",l:"DEL-I",x:28,y:20},{id:"DELD",l:"DEL-D",x:72,y:20}],
+    "1-2-3-2":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"DEF-I",x:28,y:70},{id:"DFD",l:"DEF-D",x:72,y:70},{id:"MCI",l:"INT-I",x:15,y:48},{id:"MCC",l:"PIV",x:50,y:48},{id:"MCD",l:"INT-D",x:85,y:48},{id:"DELI",l:"DEL-I",x:30,y:20},{id:"DELD",l:"DEL-D",x:70,y:20}],
+    "1-3-1-3":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"LAT-I",x:15,y:70},{id:"DFC",l:"CENT",x:50,y:70},{id:"DFD",l:"LAT-D",x:85,y:70},{id:"MCC",l:"PIV",x:50,y:50},{id:"DELI",l:"EXT-I",x:15,y:22},{id:"DELC",l:"DEL",x:50,y:18},{id:"DELD",l:"EXT-D",x:85,y:22}],
+    "1-2-4-1":[{id:"POR",l:"POR",x:50,y:87},{id:"DFI",l:"DEF-I",x:28,y:70},{id:"DFD",l:"DEF-D",x:72,y:70},{id:"MCI",l:"INT-I",x:10,y:48},{id:"MCC1",l:"MED-I",x:35,y:48},{id:"MCC2",l:"MED-D",x:65,y:48},{id:"MCD",l:"INT-D",x:90,y:48},{id:"DEL",l:"DEL",x:50,y:18}]
+  },
+  F11:{
+    "1-4-3-3":[{id:"POR",l:"POR",x:50,y:90},{id:"DFI",l:"LAT-I",x:8,y:73},{id:"DCI",l:"C-IZQ",x:33,y:73},{id:"DCD",l:"C-DER",x:67,y:73},{id:"DFD",l:"LAT-D",x:92,y:73},{id:"MCI",l:"MED-I",x:20,y:52},{id:"MCC",l:"MED-C",x:50,y:52},{id:"MCD",l:"MED-D",x:80,y:52},{id:"EXI",l:"EXT-I",x:12,y:28},{id:"DEL",l:"DEL",x:50,y:18},{id:"EXD",l:"EXT-D",x:88,y:28}],
+    "1-4-4-2":[{id:"POR",l:"POR",x:50,y:90},{id:"DFI",l:"LAT-I",x:8,y:73},{id:"DCI",l:"C-IZQ",x:33,y:73},{id:"DCD",l:"C-DER",x:67,y:73},{id:"DFD",l:"LAT-D",x:92,y:73},{id:"MCI",l:"MED-I",x:8,y:52},{id:"MCC1",l:"CEN-I",x:35,y:52},{id:"MCC2",l:"CEN-D",x:65,y:52},{id:"MCD",l:"MED-D",x:92,y:52},{id:"DELI",l:"DEL-I",x:30,y:20},{id:"DELD",l:"DEL-D",x:70,y:20}],
+    "1-4-2-3-1":[{id:"POR",l:"POR",x:50,y:90},{id:"DFI",l:"LAT-I",x:8,y:73},{id:"DCI",l:"C-IZQ",x:33,y:73},{id:"DCD",l:"C-DER",x:67,y:73},{id:"DFD",l:"LAT-D",x:92,y:73},{id:"MCI",l:"MED-I",x:30,y:57},{id:"MCD",l:"MED-D",x:70,y:57},{id:"EXI",l:"EXT-I",x:10,y:38},{id:"MPA",l:"M.PTA",x:50,y:38},{id:"EXD",l:"EXT-D",x:90,y:38},{id:"DEL",l:"DEL",x:50,y:18}],
+    "1-3-5-2":[{id:"POR",l:"POR",x:50,y:90},{id:"DFI",l:"C-IZQ",x:20,y:73},{id:"DFC",l:"CENT",x:50,y:73},{id:"DFD",l:"C-DER",x:80,y:73},{id:"CAI",l:"CAR-I",x:8,y:52},{id:"MCI",l:"MED-I",x:30,y:52},{id:"MCC",l:"MED-C",x:50,y:52},{id:"MCD",l:"MED-D",x:70,y:52},{id:"CAD",l:"CAR-D",x:92,y:52},{id:"DELI",l:"DEL-I",x:30,y:20},{id:"DELD",l:"DEL-D",x:70,y:20}],
+    "1-3-4-3":[{id:"POR",l:"POR",x:50,y:90},{id:"DFI",l:"C-IZQ",x:20,y:73},{id:"DFC",l:"CENT",x:50,y:73},{id:"DFD",l:"C-DER",x:80,y:73},{id:"MCI",l:"INT-I",x:12,y:52},{id:"MCC1",l:"MED-I",x:37,y:52},{id:"MCC2",l:"MED-D",x:63,y:52},{id:"MCD",l:"INT-D",x:88,y:52},{id:"EXI",l:"EXT-I",x:12,y:25},{id:"DEL",l:"DEL",x:50,y:18},{id:"EXD",l:"EXT-D",x:88,y:25}],
+    "1-4-1-4-1":[{id:"POR",l:"POR",x:50,y:90},{id:"DFI",l:"LAT-I",x:8,y:75},{id:"DCI",l:"C-IZQ",x:33,y:75},{id:"DCD",l:"C-DER",x:67,y:75},{id:"DFD",l:"LAT-D",x:92,y:75},{id:"MCC",l:"PIVT",x:50,y:60},{id:"EXI",l:"EXT-I",x:8,y:42},{id:"MCI",l:"INT-I",x:33,y:42},{id:"MCD",l:"INT-D",x:67,y:42},{id:"EXD",l:"EXT-D",x:92,y:42},{id:"DEL",l:"DEL",x:50,y:18}]
+  }
+};
+// Formación activa por defecto para cada formato
+const FORM_DEFAULT={F7:"1-3-2-1",F8:"1-3-3-1",F11:"1-4-3-3"};
+
+var PLK='campo_plantillas_v1';
+function getPL(){try{var o=JSON.parse(localStorage.getItem(PLK)||'{}');return o&&typeof o==='object'?o:{};}catch(e){return {};}}
+function setPL(o){try{localStorage.setItem(PLK,JSON.stringify(o));return true;}catch(e){alert('No se pudo guardar en este navegador');return false;}}
+function nombresForm(){return $('names').value.split(/\n/).map(function(x){return x.trim();}).filter(Boolean);}
+function refPL(sel){var o=getPL(),ks=Object.keys(o).sort();$('plSel').innerHTML='<option value="">'+(ks.length?'— Plantillas guardadas ('+ks.length+') —':'— Sin plantillas guardadas —')+'</option>'+ks.map(function(k){return '<option'+(k===sel?' selected':'')+' value="'+esc(k)+'">'+esc(k)+' ('+o[k].jug.length+' jug.)</option>';}).join('');}
+function guardaPL(){var n=$('eq').value.trim(),j=nombresForm();if(!n){alert('Escribe el nombre del equipo (por ejemplo Alevín C)');return;}if(!j.length){alert('Escribe al menos un nombre');return;}
+  var o=getPL();if(o[n]&&!confirm('Ya existe la plantilla «'+n+'». ¿Sustituirla?'))return;o[n]={fmt:$('fmt').value,jug:j};if(setPL(o)){refPL(n);$('plMsg').textContent='✔ Plantilla «'+n+'» guardada';}}
+function cargaPL(){var k=$('plSel').value;if(!k)return;var o=getPL();if(!o[k])return;$('eq').value=k;$('fmt').value=o[k].fmt;$('names').value=o[k].jug.join('\n');$('plMsg').textContent='Plantilla «'+k+'» cargada: pulsa Empezar partido';}
+function borraPL(){var k=$('plSel').value;if(!k)return;if(!confirm('¿Borrar la plantilla «'+k+'»?'))return;var o=getPL();delete o[k];setPL(o);refPL('');}
+var FD={F7:"1-3-2-1",F8:"1-3-3-1",F11:"1-4-3-3"};
+var KEY='campo_partido_v1',S=null,cur=0,selPos=null;
+function nuevo(){return {eq:'Alevín C',riv:'',fmt:'F7',jug:[],q:[0,1,2,3].map(function(){return {form:'',al:{},gf:0,gc:0};}),ready:false};}
+function guardar(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function cargar(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.q&&o.q.length===4)return o;}}catch(e){}return nuevo();}
+function $(i){return document.getElementById(i);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function formQ(q){var f=FORMACIONES[S.fmt];return f[q.form]?q.form:(f[FD[S.fmt]]?FD[S.fmt]:Object.keys(f)[0]);}
+function posQ(q){return FORMACIONES[S.fmt][formQ(q)];}
+function cuartos(i){var n=0;S.q.forEach(function(q){var p=posQ(q).map(function(x){return x.id;});for(var k in q.al)if(q.al[k]===i&&p.indexOf(k)>=0){n++;break;}});return n;}
+function enCampo(q,i){for(var k in q.al)if(q.al[k]===i)return k;return null;}
+function limpiaQ(q){var ids=posQ(q).map(function(x){return x.id;});for(var k in q.al)if(ids.indexOf(k)<0)delete q.al[k];}
+function nom(i){return S.jug[i]!=null?S.jug[i]:'';}
+function ini(n){return n.trim().slice(0,2).toUpperCase();}
+function corto(n){return n.length>10?n.slice(0,9)+'.':n;}
+function tabs(){var h='';for(var i=0;i<4;i++)h+='<button class="tab'+(cur===i?' on':'')+'" data-t="'+i+'">C'+(i+1)+'</button>';h+='<button class="tab'+(cur===4?' on':'')+'" data-t="4">Resumen</button>';$('tabs').innerHTML=h;
+  $('tabs').querySelectorAll('.tab').forEach(function(b){b.onclick=function(){cur=+b.getAttribute('data-t');pinta();};});}
+function pinta(){
+  tabs();$('ttl').childNodes[0].nodeValue=(S.eq||'Equipo')+(S.riv?' vs '+S.riv:'');
+  $('sub').textContent=({F7:'Fútbol 7',F8:'Fútbol 8',F11:'Fútbol 11'})[S.fmt]+' · 4 cuartos';
+  $('setup').classList.toggle('hide',S.ready);
+  $('vq').classList.toggle('hide',!S.ready||cur===4);$('vr').classList.toggle('hide',!S.ready||cur!==4);
+  $('tabs').classList.toggle('hide',!S.ready);
+  if(!S.ready)return;
+  if(cur<4)pintaQ();else pintaResumen();
+}
+function pintaQ(){
+  var q=S.q[cur],fq=formQ(q);limpiaQ(q);
+  $('form').innerHTML=Object.keys(FORMACIONES[S.fmt]).map(function(k){return '<option'+(k===fq?' selected':'')+'>'+k+'</option>';}).join('');
+  $('bRep').style.display=cur===0?'none':'';
+  var h='<div class="box t"></div><div class="box b"></div>';
+  posQ(q).forEach(function(p){var i=q.al[p.id];var f=i!=null&&S.jug[i]!=null;
+    h+='<button class="tok'+(f?' f':'')+(p.id==='POR'?' por':'')+'" style="left:'+p.x+'%;top:'+p.y+'%" data-p="'+p.id+'"><div class="dot">'+(f?esc(ini(nom(i))):esc(p.l))+'</div>'+(f?'<div class="nm">'+esc(corto(nom(i)))+'</div>':'')+'</button>';});
+  $('pitch').innerHTML=h;
+  $('pitch').querySelectorAll('.tok').forEach(function(b){b.onclick=function(){abre(b.getAttribute('data-p'));};});
+  var bn='';S.jug.forEach(function(n,i){if(enCampo(q,i)==null){var c=cuartos(i);bn+='<span class="chip'+(c===0?' z':'')+'">'+esc(n)+'<b>'+c+'</b></span>';}});
+  $('bench').innerHTML=bn||'<span style="color:var(--mut);font-size:13px">Todos en el campo</span>';
+  $('vn').textContent=q.gf;$('vr2').textContent=q.gc;$('lblN').textContent=(S.eq||'NOSOTROS').toUpperCase();$('lblR').textContent=(S.riv||'RIVAL').toUpperCase();
+}
+function abre(pos){
+  selPos=pos;var q=S.q[cur],act=q.al[pos];var h='<h3>'+esc(posQ(q).filter(function(x){return x.id===pos;})[0].l)+' · cuarto '+(cur+1)+'</h3>';
+  var ord=S.jug.map(function(n,i){return i;}).sort(function(a,b){var ea=enCampo(q,a)!=null,eb=enCampo(q,b)!=null;return (ea-eb)||(cuartos(a)-cuartos(b));});
+  ord.forEach(function(i){var ep=enCampo(q,i);var c=cuartos(i);
+    h+='<button class="opt'+(c===0?' z':'')+(ep!=null?' in':'')+'" data-i="'+i+'"><span>'+esc(nom(i))+'</span><small>'+(ep!=null?(ep===pos?'ya aquí · ':'en '+ep+' · ')+'':'')+c+' cuarto'+(c===1?'':'s')+'</small></button>';});
+  if(act!=null)h+='<button class="opt" data-i="x" style="background:#FEE2E2"><span>Quitar de esta posición</span></button>';
+  h+='<button class="btn l" style="width:100%;margin-top:4px" id="cx">Cancelar</button>';
+  $('sheet').innerHTML=h;$('md').classList.add('on');
+  $('sheet').querySelectorAll('.opt').forEach(function(b){b.onclick=function(){var v=b.getAttribute('data-i');
+    if(v==='x')delete q.al[pos];else{v=+v;var prev=enCampo(q,v),old=q.al[pos];if(prev!=null){if(old!=null)q.al[prev]=old;else delete q.al[prev];}q.al[pos]=v;}
+    $('md').classList.remove('on');guardar();pinta();};});
+  $('cx').onclick=function(){$('md').classList.remove('on');};
+}
+function pintaResumen(){
+  var h='<tr><th>Jugador</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>Total</th></tr>',aviso=[];
+  S.jug.forEach(function(n,i){var c=cuartos(i);h+='<tr><td>'+esc(n)+'</td>';
+    S.q.forEach(function(q){var p=enCampo(q,i);var l=p?posQ(q).filter(function(x){return x.id===p;})[0]:null;h+='<td>'+(l?l.l:'–')+'</td>';});
+    h+='<td><b'+(c===0?' style="color:#DC2626"':'')+'>'+c+'</b></td></tr>';if(c===0)aviso.push(n);});
+  $('tab').innerHTML=h;
+  var gf=0,gc=0;S.q.forEach(function(q){gf+=q.gf;gc+=q.gc;});
+  $('marc').innerHTML=esc(S.eq||'Nosotros')+' <span style="font-size:22px">'+gf+' - '+gc+'</span> '+esc(S.riv||'Rival')+'<div style="font-weight:400;font-size:12px;color:var(--mut)">'+S.q.map(function(q,i){return 'C'+(i+1)+': '+q.gf+'-'+q.gc;}).join(' · ')+'</div>';
+  $('aviso').textContent=aviso.length?'Sin jugar todavía: '+aviso.join(', '):'';
+}
+function texto(){
+  var t=(S.eq||'Equipo')+(S.riv?' vs '+S.riv:'')+'\n';var gf=0,gc=0;S.q.forEach(function(q){gf+=q.gf;gc+=q.gc;});t+='Resultado: '+gf+'-'+gc+'\n';
+  S.q.forEach(function(q,k){t+='\n*Cuarto '+(k+1)+'* ('+formQ(q)+') '+q.gf+'-'+q.gc+'\n';
+    posQ(q).slice().sort(function(a,b){return b.y-a.y;}).forEach(function(p){var i=q.al[p.id];t+=p.l+': '+(i!=null&&S.jug[i]!=null?S.jug[i]:'—')+'\n';});
+    var b=S.jug.filter(function(n,i){return enCampo(q,i)==null;});if(b.length)t+='Banquillo: '+b.join(', ')+'\n';});
+  return t;
+}
+function copiar(){var t=texto();
+  function ok(){$('msg').textContent='✔ Copiado. Pégalo en WhatsApp.';}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok).catch(fallback);}else fallback();
+  function fallback(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok();}catch(e){$('msg').textContent='No se pudo copiar';}a.remove();}
+}
+function aplicaPlantilla(){
+  var nombres=$('names').value.split(/\n/).map(function(s){return s.trim();}).filter(Boolean);
+  if(!nombres.length){alert('Escribe al menos un nombre');return;}
+  var cambioFmt=$('fmt').value!==S.fmt;
+  // mantiene asignaciones por índice si el nombre sigue en la misma posición de la lista
+  var viejo=S.jug.slice();S.q.forEach(function(q){for(var k in q.al){var nn=viejo[q.al[k]];var ni=nombres.indexOf(nn);if(ni<0)delete q.al[k];else q.al[k]=ni;}});
+  S.jug=nombres;S.eq=$('eq').value.trim();S.riv=$('riv').value.trim();
+  if(cambioFmt){S.fmt=$('fmt').value;S.q.forEach(function(q){q.form='';q.al={};});}
+  S.ready=true;cur=0;guardar();pinta();
+}
+function abreSetup(){try{$('plMsg').textContent='';refPL('');}catch(e){}$('eq').value=S.eq||'';$('riv').value=S.riv||'';$('fmt').value=S.fmt;$('names').value=S.jug.join('\n');S.ready=false;pinta();}
+function dialogoNuevo(){
+  $('sheet').innerHTML='<h3>Nuevo partido</h3><button class="opt" id="n1"><span>Mantener plantilla y formato</span><small>borra alineaciones y marcador</small></button><button class="opt z" id="n2"><span>Borrar todo</span><small>también los nombres (las plantillas guardadas no se tocan)</small></button><button class="btn l" style="width:100%" id="n3">Cancelar</button>';
+  $('md').classList.add('on');
+  $('n1').onclick=function(){S.q=[0,1,2,3].map(function(){return {form:'',al:{},gf:0,gc:0};});S.riv='';cur=0;$('md').classList.remove('on');guardar();pinta();};
+  $('n2').onclick=function(){S=nuevo();$('names').value='';$('riv').value='';cur=0;$('md').classList.remove('on');guardar();abreSetup();};
+  $('n3').onclick=function(){$('md').classList.remove('on');};
+}
+function marcador(k,d){var q=S.q[cur];q[k]=Math.max(0,q[k]+d);guardar();pintaQ();}
+document.addEventListener('DOMContentLoaded',function(){
+  S=cargar();
+  refPL('');$('plSave').onclick=guardaPL;$('plLoad').onclick=cargaPL;$('plDel').onclick=borraPL;
+  $('bPl').onclick=abreSetup;$('bNew').onclick=dialogoNuevo;$('bOk').onclick=aplicaPlantilla;
+  $('form').onchange=function(){var q=S.q[cur];q.form=this.value;limpiaQ(q);guardar();pinta();};
+  $('bRep').onclick=function(){if(cur===0)return;var a=S.q[cur-1],q=S.q[cur];q.form=a.form;q.al=JSON.parse(JSON.stringify(a.al));guardar();pinta();};
+  $('np').onclick=function(){marcador('gf',1);};$('nm').onclick=function(){marcador('gf',-1);};
+  $('rp').onclick=function(){marcador('gc',1);};$('rm').onclick=function(){marcador('gc',-1);};
+  $('bCopy').onclick=copiar;$('bPrint').onclick=function(){window.print();};
+  $('md').onclick=function(e){if(e.target===$('md'))$('md').classList.remove('on');};
+  if(!S.ready){$('names').value=S.jug.join('\n');$('fmt').value=S.fmt;}
+  pinta();
+});
+</script></body></html>
