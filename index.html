@@ -2,6 +2,11 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#1E3A5F"><title>Hoja de partido · Campo</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hoja partido">
 <style>
 :root{--navy:#1E3A5F;--mut:#64748B;--line:#E2E8F0;--bg:#F1F5F9;--ok:#16A34A;--bad:#DC2626;--or:#F97316}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -217,4 +222,6 @@ document.addEventListener('DOMContentLoaded',function(){
   if(!S.ready){$('names').value=S.jug.join('\n');$('fmt').value=S.fmt;}
   pinta();
 });
+// Modo sin conexión: si falla, la hoja sigue funcionando igual
+if('serviceWorker' in navigator&&location.protocol!=='file:'){window.addEventListener('load',function(){try{navigator.serviceWorker.register('sw.js').catch(function(){});}catch(e){}});}
 </script></body></html>
