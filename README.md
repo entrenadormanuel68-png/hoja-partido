@@ -10,6 +10,14 @@ Desde el móvil, usa "Añadir a pantalla de inicio" para abrirla como una app.
 
 Las plantillas y el partido se guardan en cada dispositivo (no se sincronizan entre móviles).
 
+## Hoja de campo A4 (4 cuartos)
+
+En la pestaña **Resumen**, el botón **📄 Hoja A4 (4 cuartos)** genera una hoja en tamaño A4 con el campo de los cuatro cuartos, el marcador de cada uno, el banquillo y los cuartos jugados por cada jugador. Desde esa hoja puedes:
+
+- **🖨 Imprimir / PDF**: imprime en A4 o guarda como PDF (elige «Guardar como PDF» en el diálogo de impresión).
+- **📱 Compartir imagen**: envía la hoja como imagen por WhatsApp u otra app. Si el navegador no permite compartir, la descarga.
+- **⬇ Guardar imagen**: descarga la hoja como PNG.
+
 ## Copia de seguridad y cambio de móvil
 
 En la pantalla **⚙ Plantilla** hay dos botones para mover las plantillas guardadas:

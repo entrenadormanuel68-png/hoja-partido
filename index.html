@@ -50,6 +50,10 @@ th{background:var(--navy);color:#fff}td:first-child,th:first-child{text-align:le
 .opt small{font-weight:600;color:var(--mut)}.opt.z{background:#FEE2E2}.opt.in{opacity:.9;background:#E0F2FE}
 .hide{display:none}.warn{color:var(--bad);font-weight:700;font-size:12px}
 @media print{header,.tabs,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}#vq{display:none!important}#vr{display:block!important}}
+.a4{display:none;position:fixed;inset:0;background:#334155;z-index:30;overflow:auto}.a4.on{display:block}
+.a4bar{position:sticky;top:0;z-index:2;display:flex;gap:6px;flex-wrap:wrap;padding:8px;background:var(--navy)}
+.a4wrap{padding:10px}.a4wrap img{display:block;width:100%;max-width:794px;margin:0 auto;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+@media print{body.a4on>*:not(#a4){display:none!important}body.a4on #a4{position:static;overflow:visible;background:#fff}body.a4on .a4bar{display:none!important}body.a4on .a4wrap{padding:0}body.a4on .a4wrap img{width:210mm;height:297mm;max-width:none;margin:0;box-shadow:none}}
 </style></head><body>
 <header><h1 id="ttl">Hoja de partido<small id="sub"></small></h1><button class="hb" id="bPl">⚙ Plantilla</button><button class="hb" id="bNew">🔄 Nuevo</button></header>
 <main>
@@ -75,11 +79,12 @@ th{background:var(--navy);color:#fff}td:first-child,th:first-child{text-align:le
  <div id="vr" class="hide">
   <div class="card"><h3>Marcador</h3><div id="marc" style="font-size:15px;font-weight:700"></div></div>
   <div class="card"><h3>Alineaciones por cuarto</h3><div style="overflow-x:auto"><table id="tab"></table></div><div class="warn" id="aviso" style="margin-top:6px"></div></div>
-  <div class="row noprint"><button class="btn g" id="bCopy">📱 Copiar para WhatsApp</button><button class="btn l" id="bPrint">🖨 Imprimir / PDF</button></div>
+  <div class="row noprint"><button class="btn g" id="bCopy">📱 Copiar para WhatsApp</button><button class="btn l" id="bPrint">🖨 Imprimir / PDF</button><button class="btn" id="bA4">📄 Hoja A4 (4 cuartos)</button></div>
   <div id="msg" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
  </div>
 </main>
 <div class="modal" id="md"><div class="sheet" id="sheet"></div></div>
+<div class="a4" id="a4"><div class="a4bar"><button class="hb" id="a4X">✕ Cerrar</button><button class="hb" id="a4P">🖨 Imprimir / PDF</button><button class="hb" id="a4S">📱 Compartir imagen</button><button class="hb" id="a4D">⬇ Guardar imagen</button></div><div class="a4wrap"><img id="a4img" alt="Hoja de campo A4 con los 4 cuartos"></div></div>
 <script>
 var FORMACIONES={
   F7:{
@@ -162,6 +167,97 @@ function importaPL(file){
     if(setPL(o)){refPL('');$('plMsg').textContent='✔ '+add+' plantilla(s) importadas'+(ign?' ('+ign+' no válidas ignoradas)':'');}
   };
   r.readAsText(file);
+}
+/* ---- hoja de campo A4 con los 4 cuartos (imagen / PDF) ---- */
+var a4c=null;
+function a4Recorta(g,t,w){while(t.length>1&&g.measureText(t).width>w)t=t.slice(0,-1);return t;}
+function a4Lineas(g,t,w,max){
+  var ws=t.split(' '),ls=[],l='';
+  ws.forEach(function(x){var n=l?l+' '+x:x;if(g.measureText(n).width>w&&l){ls.push(l);l=x;}else l=n;});
+  if(l)ls.push(l);
+  if(ls.length>max){ls=ls.slice(0,max);var s=ls[max-1];while(s.length>1&&g.measureText(s+' …').width>w)s=s.slice(0,-1);ls[max-1]=s+' …';}
+  return ls;
+}
+function a4Draw(){
+  var W=1240,H=1754,c=document.createElement('canvas');c.width=W;c.height=H;
+  var g=c.getContext('2d'),NAVY='#1E3A5F',F='system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+  var fm={F7:'Fútbol 7',F8:'Fútbol 8',F11:'Fútbol 11'}[S.fmt]||'';
+  var fecha=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var gf=0,gc=0;S.q.forEach(function(q){gf+=q.gf;gc+=q.gc;});
+  g.fillStyle='#fff';g.fillRect(0,0,W,H);
+  g.fillStyle=NAVY;g.fillRect(0,0,W,130);
+  g.fillStyle='#fff';g.textAlign='left';g.textBaseline='alphabetic';
+  g.font='bold 44px '+F;g.fillText(a4Recorta(g,(S.eq||'Equipo')+(S.riv?' vs '+S.riv:''),820),40,68);
+  g.font='26px '+F;g.fillText(fm+' · '+fecha,40,108);
+  g.textAlign='right';g.font='bold 76px '+F;g.fillText(gf+' - '+gc,W-40,96);
+  var CW=565,CH=672,PH=560;
+  S.q.forEach(function(q,k){
+    var x=40+(k%2)*(CW+30),y=160+Math.floor(k/2)*(CH+30);
+    g.fillStyle='#E2E8F0';g.fillRect(x,y,CW,44);
+    g.fillStyle=NAVY;g.textAlign='left';g.font='bold 24px '+F;g.fillText('Cuarto '+(k+1)+' · '+formQ(q),x+12,y+31);
+    g.textAlign='right';g.font='bold 26px '+F;g.fillText(q.gf+' - '+q.gc,x+CW-12,y+32);
+    var px=x,py=y+50,pw=CW,ph=PH;
+    g.fillStyle='#3a9d4f';g.fillRect(px,py,pw,ph);
+    g.fillStyle='#359447';for(var s=1;s<8;s+=2)g.fillRect(px,py+s*ph/8,pw,ph/8);
+    g.strokeStyle='rgba(255,255,255,.85)';g.lineWidth=3;g.setLineDash([]);
+    g.strokeRect(px+1.5,py+1.5,pw-3,ph-3);
+    g.beginPath();g.moveTo(px,py+ph/2);g.lineTo(px+pw,py+ph/2);g.stroke();
+    g.beginPath();g.arc(px+pw/2,py+ph/2,pw*.11,0,Math.PI*2);g.stroke();
+    g.strokeRect(px+pw*.25,py+1.5,pw*.5,ph*.14);g.strokeRect(px+pw*.25,py+ph*.86,pw*.5,ph*.14-1.5);
+    var ids=[];
+    posQ(q).forEach(function(p){
+      ids.push(p.id);
+      var i=q.al[p.id],has=i!=null&&S.jug[i]!=null,cx=px+p.x/100*pw,cy=py+p.y/100*ph,r=25;
+      g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);
+      if(has){
+        g.fillStyle=p.id==='POR'?'#F59E0B':NAVY;g.fill();g.setLineDash([]);g.lineWidth=3;g.strokeStyle='#fff';g.stroke();
+        g.fillStyle='#fff';g.textAlign='center';g.font='bold 19px '+F;g.fillText(nom(i).trim().slice(0,2).toUpperCase(),cx,cy+7);
+        var n=nom(i);if(n.length>10)n=n.slice(0,9)+'…';
+        var tx=Math.max(50,Math.min(pw-50,cx-px))+px;
+        g.font='bold 17px '+F;g.shadowColor='#000';g.shadowBlur=4;g.fillStyle='#fff';g.fillText(n,tx,cy+r+19);g.shadowBlur=0;g.shadowColor='transparent';
+      }else{
+        g.fillStyle='rgba(255,255,255,.2)';g.fill();g.setLineDash([6,5]);g.lineWidth=2.5;g.strokeStyle='#fff';g.stroke();g.setLineDash([]);
+        g.fillStyle='#fff';g.textAlign='center';g.font='bold 14px '+F;g.fillText(p.l,cx,cy+5);
+      }
+    });
+    var ben=S.jug.filter(function(n,i){var e=enCampo(q,i);return e===null||ids.indexOf(e)<0;});
+    g.fillStyle='#334155';g.textAlign='left';g.font='bold 19px '+F;
+    var ls=a4Lineas(g,'Banquillo: '+(ben.length?ben.join(', '):'—'),CW-4,2);
+    ls.forEach(function(t,j){g.fillText(t,x+2,py+ph+26+j*25);});
+  });
+  var fy=1554;
+  g.strokeStyle='#CBD5E1';g.lineWidth=2;g.beginPath();g.moveTo(40,fy);g.lineTo(W-40,fy);g.stroke();
+  g.fillStyle=NAVY;g.textAlign='left';g.font='bold 24px '+F;g.fillText('Cuartos jugados',40,fy+34);
+  g.font='22px '+F;g.fillStyle='#0F172A';
+  var it=S.jug.map(function(n,i){return n.replace(/ /g,' ')+' '+cuartos(i);});
+  a4Lineas(g,it.join('  · '),W-80,3).forEach(function(t,j){g.fillText(t,40,fy+68+j*30);});
+  var sin=S.jug.filter(function(n,i){return cuartos(i)===0;});
+  if(sin.length){g.fillStyle='#DC2626';g.font='bold 22px '+F;g.fillText(a4Recorta(g,'Sin jugar: '+sin.join(', '),W-80),40,fy+158);}
+  return c;
+}
+function a4Nombre(){return 'hoja-'+(S.eq||'equipo').replace(/[^A-Za-z0-9]+/g,'-')+'-'+new Date().toISOString().slice(0,10)+'.png';}
+function a4Baja(b,nombre){
+  try{var u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},4000);}
+  catch(e){alert('No se pudo guardar la imagen en este navegador.');}
+}
+function a4Blob(cb){a4c.toBlob(function(b){if(!b){alert('No se pudo crear la imagen.');return;}cb(b);},'image/png');}
+function a4Comparte(){
+  if(!a4c)return;
+  a4Blob(function(b){
+    var nombre=a4Nombre(),f=null;try{f=new File([b],nombre,{type:'image/png'});}catch(e){}
+    if(f&&navigator.canShare&&navigator.share&&navigator.canShare({files:[f]})){
+      navigator.share({files:[f],title:(S.eq||'Equipo')+(S.riv?' vs '+S.riv:'')}).catch(function(e){if(e&&e.name!=='AbortError')a4Baja(b,nombre);});
+    }else a4Baja(b,nombre);
+  });
+}
+function abreA4(){
+  a4c=a4Draw();$('a4img').src=a4c.toDataURL('image/png');
+  var st=document.createElement('style');st.id='pgs';st.textContent='@page{size:A4 portrait;margin:0}';document.head.appendChild(st);
+  document.body.classList.add('a4on');$('a4').classList.add('on');$('a4').scrollTop=0;
+}
+function cierraA4(){
+  $('a4').classList.remove('on');document.body.classList.remove('a4on');
+  var st=$('pgs');if(st)st.remove();
 }
 var FD={F7:"1-3-2-1",F8:"1-3-3-1",F11:"1-4-3-3"};
 var KEY='campo_partido_v1',S=null,cur=0,selPos=null;
@@ -266,6 +362,7 @@ document.addEventListener('DOMContentLoaded',function(){
   $('bRep').onclick=function(){if(cur===0)return;var a=S.q[cur-1],q=S.q[cur];q.form=a.form;q.al=JSON.parse(JSON.stringify(a.al));guardar();pinta();};
   $('np').onclick=function(){marcador('gf',1);};$('nm').onclick=function(){marcador('gf',-1);};
   $('rp').onclick=function(){marcador('gc',1);};$('rm').onclick=function(){marcador('gc',-1);};
+  $('bA4').onclick=abreA4;$('a4X').onclick=cierraA4;$('a4P').onclick=function(){window.print();};$('a4S').onclick=a4Comparte;$('a4D').onclick=function(){if(!a4c)return;a4Blob(function(b){a4Baja(b,a4Nombre());});};
   $('bCopy').onclick=copiar;$('bPrint').onclick=function(){window.print();};
   $('md').onclick=function(e){if(e.target===$('md'))$('md').classList.remove('on');};
   if(!S.ready){$('names').value=S.jug.join('\n');$('fmt').value=S.fmt;}
