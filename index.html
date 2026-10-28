@@ -61,6 +61,8 @@ th{background:var(--navy);color:#fff}td:first-child,th:first-child{text-align:le
   <div style="font-size:12px;color:var(--mut);margin-bottom:4px">Nombres de los jugadores, uno por línea:</div>
   <textarea id="names" placeholder="Pedro&#10;Marc&#10;Joan&#10;..."></textarea>
   <div class="row" style="margin-top:8px"><button class="btn g" id="bOk">✔ Empezar partido</button><button class="btn l" id="plSave">💾 Guardar plantilla</button></div><div id="plMsg" style="font-size:12px;color:var(--ok);margin-top:6px"></div><div style="font-size:11px;color:var(--mut);margin-top:6px">La plantilla se guarda con el nombre del campo «Equipo» (por ejemplo Alevín C) y queda en este móvil.</div>
+  <div class="row" style="margin-top:10px;background:var(--bg);border-radius:10px;padding:8px"><button class="btn l" id="plExp">⬇ Exportar plantillas</button><button class="btn l" id="plImp">⬆ Importar plantillas</button><input type="file" id="plFile" accept=".json,application/json" class="hide"></div>
+  <div style="font-size:11px;color:var(--mut);margin-top:6px">Exportar guarda todas las plantillas en un archivo (copia de seguridad o para pasarlas a otro móvil). Importar las añade a las que ya tienes.</div>
  </div>
  <div class="tabs noprint" id="tabs"></div>
  <div id="vq">
@@ -116,6 +118,51 @@ function guardaPL(){var n=$('eq').value.trim(),j=nombresForm();if(!n){alert('Esc
   var o=getPL();if(o[n]&&!confirm('Ya existe la plantilla «'+n+'». ¿Sustituirla?'))return;o[n]={fmt:$('fmt').value,jug:j};if(setPL(o)){refPL(n);$('plMsg').textContent='✔ Plantilla «'+n+'» guardada';}}
 function cargaPL(){var k=$('plSel').value;if(!k)return;var o=getPL();if(!o[k])return;$('eq').value=k;$('fmt').value=o[k].fmt;$('names').value=o[k].jug.join('\n');$('plMsg').textContent='Plantilla «'+k+'» cargada: pulsa Empezar partido';}
 function borraPL(){var k=$('plSel').value;if(!k)return;if(!confirm('¿Borrar la plantilla «'+k+'»?'))return;var o=getPL();delete o[k];setPL(o);refPL('');}
+/* ---- exportar / importar plantillas (archivo .json) ---- */
+function exportaPL(){
+  var o=getPL(),n=Object.keys(o).length;
+  if(!n){alert('No hay plantillas guardadas para exportar.');return;}
+  var txt=JSON.stringify({app:'hoja-partido',version:1,plantillas:o},null,2);
+  var nombre='plantillas-hoja-partido.json';
+  var f=null;try{f=new File([txt],nombre,{type:'application/json'});}catch(e){}
+  if(f&&navigator.canShare&&navigator.share&&navigator.canShare({files:[f]})){
+    navigator.share({files:[f],title:'Plantillas hoja de partido'}).then(function(){$('plMsg').textContent='✔ '+n+' plantilla(s) exportadas';}).catch(function(e){if(e&&e.name!=='AbortError')descargaPL(txt,nombre,n);});
+  }else descargaPL(txt,nombre,n);
+}
+function descargaPL(txt,nombre,n){
+  try{
+    var u=URL.createObjectURL(new Blob([txt],{type:'application/json'}));
+    var a=document.createElement('a');a.href=u;a.download=nombre;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(u);},4000);
+    $('plMsg').textContent='✔ '+n+' plantilla(s) exportadas en '+nombre;
+  }catch(e){alert('No se pudo crear el archivo en este navegador.');}
+}
+function importaPL(file){
+  if(!file)return;
+  var r=new FileReader();
+  r.onerror=function(){alert('No se pudo leer el archivo.');};
+  r.onload=function(){
+    var d;try{d=JSON.parse(r.result);}catch(e){alert('El archivo no es un JSON válido.');return;}
+    var src=(d&&d.plantillas&&typeof d.plantillas==='object')?d.plantillas:d;
+    if(!src||typeof src!=='object'||Array.isArray(src)){alert('El archivo no tiene el formato de plantillas esperado.');return;}
+    var nuevas={},ok=0,ign=0;
+    Object.keys(src).forEach(function(k){
+      var t=src[k],nm=String(k).trim();
+      if(!nm||!t||!{F7:1,F8:1,F11:1}[t.fmt]||!Array.isArray(t.jug)){ign++;return;}
+      var j=t.jug.map(function(x){return String(x).trim();}).filter(Boolean);
+      if(!j.length){ign++;return;}
+      nuevas[nm]={fmt:t.fmt,jug:j};ok++;
+    });
+    if(!ok){alert('No se encontró ninguna plantilla válida en el archivo.');return;}
+    var o=getPL(),choque=Object.keys(nuevas).filter(function(k){return o[k];});
+    var sustituir=true;
+    if(choque.length)sustituir=confirm('Ya existen estas plantillas: '+choque.join(', ')+'.\n\nAceptar = sustituirlas por las del archivo.\nCancelar = conservar las tuyas y añadir solo las nuevas.');
+    var add=0;
+    Object.keys(nuevas).forEach(function(k){if(o[k]&&!sustituir)return;o[k]=nuevas[k];add++;});
+    if(setPL(o)){refPL('');$('plMsg').textContent='✔ '+add+' plantilla(s) importadas'+(ign?' ('+ign+' no válidas ignoradas)':'');}
+  };
+  r.readAsText(file);
+}
 var FD={F7:"1-3-2-1",F8:"1-3-3-1",F11:"1-4-3-3"};
 var KEY='campo_partido_v1',S=null,cur=0,selPos=null;
 function nuevo(){return {eq:'Alevín C',riv:'',fmt:'F7',jug:[],q:[0,1,2,3].map(function(){return {form:'',al:{},gf:0,gc:0};}),ready:false};}
@@ -212,6 +259,8 @@ function marcador(k,d){var q=S.q[cur];q[k]=Math.max(0,q[k]+d);guardar();pintaQ()
 document.addEventListener('DOMContentLoaded',function(){
   S=cargar();
   refPL('');$('plSave').onclick=guardaPL;$('plLoad').onclick=cargaPL;$('plDel').onclick=borraPL;
+  $('plExp').onclick=exportaPL;$('plImp').onclick=function(){$('plFile').click();};
+  $('plFile').onchange=function(){importaPL(this.files[0]);this.value='';};
   $('bPl').onclick=abreSetup;$('bNew').onclick=dialogoNuevo;$('bOk').onclick=aplicaPlantilla;
   $('form').onchange=function(){var q=S.q[cur];q.form=this.value;limpiaQ(q);guardar();pinta();};
   $('bRep').onclick=function(){if(cur===0)return;var a=S.q[cur-1],q=S.q[cur];q.form=a.form;q.al=JSON.parse(JSON.stringify(a.al));guardar();pinta();};
